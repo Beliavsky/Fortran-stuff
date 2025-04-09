@@ -4,7 +4,7 @@ use kind_mod, only: dp
 implicit none
 private
 public :: default, assert_equal, write_merge, split_string, display, &
-   first_false, sech, bad_real
+   first_false, sech, bad_real, istdout, write_format
 interface default
    module procedure default_int, default_real, default_logical, &
       default_character
@@ -12,6 +12,7 @@ end interface default
 interface display
    module procedure display_matrix
 end interface display
+integer, parameter :: istdout = output_unit
 real(kind=dp), parameter :: bad_real = -999.0_dp
 contains
 
@@ -189,6 +190,23 @@ real(kind=dp), intent(in) :: xx
 real(kind=dp)             :: yy
 yy = 1/cosh(xx)
 end function sech
+
+subroutine write_format(format_str,iunit,advance)
+! write format_str to unit iunit if it is present and not blank
+! otherwise, do nothing
+character (len=*), intent(in), optional :: format_str
+integer          , intent(in), optional :: iunit
+character (len=*), intent(in), optional :: advance
+integer                                 :: iu
+if (.not. present(format_str)) return
+if (present(iunit)) then
+   iu = iunit
+else
+   iu = istdout
+end if
+! iu = default(istdout,iunit)
+if (format_str /= "") write (iu,format_str,advance=default("yes",advance))
+end subroutine write_format
 
 end module util_mod
 
